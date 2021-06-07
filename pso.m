@@ -7,13 +7,11 @@
 
 function out = pso(problem, params)
     %% Problem Definition
-    % CITIES NUMBER MUST BE MORE THAN 4 
     CostFunction = @(x, y) TSPcostFunction(x, y); % Cost Function
 
-    citiesNumber = problem.citiesNumber; % Number of TSP cities ( > 4)
+    citiesNumber = problem.citiesNumber; % Number of TSP cities
 
     PositionSize = [citiesNumber 2]; % Size of Decision Variables Position Matrix
-    ParticleSize = [1 citiesNumber]; % Size of Decision Variables Matrix
 
     PositionMin = problem.PositionRange(1); % Lower Bound of Variables position 
     PositionMax = problem.PositionRange(2); % Upper Bound of Variables position 
@@ -25,6 +23,8 @@ function out = pso(problem, params)
     nPop=params.nPop;        % Population Size (Swarm Size)
 
     % PSO Parameters
+    w = .9;
+    wdamp = .95;
     alpha = .85; % Personal Learning Coefficient
     beta = .85; % Global Learning Coefficient
     
@@ -45,14 +45,33 @@ function out = pso(problem, params)
     
     % initialize city positions
     cityPositions = unifrnd(PositionMin, PositionMax, PositionSize);
+    
+    % initialize city positions (for test porpuse with 15 cities and PosiotionRange of 0 100)
+%     cityPositions = [    
+%        9.5297   47.2452;
+%        58.4346   91.4046;
+%        39.8273   47.2617;
+%        96.5833   40.5779;
+%        11.8282   60.6019;
+%        13.0960   10.6280;
+%        20.5225   77.0525;
+%        93.3953   77.1152;
+%        60.8161   82.1863;
+%        83.0912   59.4440;
+%        95.1951    6.8667;
+%        73.4111   34.8132;
+%         9.1560   88.5590;
+%         2.6903   86.0422;
+%        69.6881   12.0456;
+%    ];
 
     for i = 1:nPop
   
         % Initialize city sequence
         particle(i).citySequence = randperm(citiesNumber);
-
+        
         % Initialize Velocity
-        particle(i).Velocity = randi(citiesNumber, [2, 3]);
+        particle(i).Velocity = randi(citiesNumber, [2, ceil(citiesNumber/2)]);
 
         % Evaluation
         particle(i).Cost = CostFunction(particle(i).citySequence, cityPositions);
@@ -82,24 +101,35 @@ function out = pso(problem, params)
             PbestMinusCitySequence = subtract(particle(i).Best.citySequence, particle(i).citySequence);
             GbestMinusCitySequence = subtract(GlobalBest.citySequence, particle(i).citySequence);
             
+            temp = [];
+            if ~isempty(particle(i).Velocity)
+                for k=1:length(particle(i).Velocity(1,:))
+                    if rand <= w
+                        temp = [temp, particle(i).Velocity(:, k)];
+                    end
+                end
+            end
             if ~isempty(PbestMinusCitySequence)
                 for k=1:length(PbestMinusCitySequence(1,:))
                     if rand <= alpha
-                        particle(i).Velocity = [particle(i).Velocity, PbestMinusCitySequence(:, k)];
+                        temp = [temp, PbestMinusCitySequence(:, k)];
                     end
                 end
             end
             if ~isempty(GbestMinusCitySequence)
                 for k=1:length(GbestMinusCitySequence(1,:))
                     if rand <= beta
-                        particle(i).Velocity = [particle(i).Velocity, GbestMinusCitySequence(:, k)];
+                        temp = [temp, GbestMinusCitySequence(:, k)];
                     end
                 end
             end
-
+            particle(i).Velocity = temp;
+            
             % Update Position
-            for k=1:length(particle(i).Velocity(1,:))
-                particle(i).citySequence = swap(particle(i).citySequence, particle(i).Velocity(:, k));
+            if ~isempty(particle(i).Velocity)
+                for k=1:length(particle(i).Velocity(1,:))
+                    particle(i).citySequence = swap(particle(i).citySequence, particle(i).Velocity(:, k));
+                end
             end
 
             %% obey constarint
@@ -121,7 +151,7 @@ function out = pso(problem, params)
                 end
 
             end
-
+            
         end
 
         out.BestCost(it) = GlobalBest.Cost;
@@ -151,43 +181,9 @@ function out = pso(problem, params)
             % Now plot index numbers along side the markers.
             hold off;
         end
-        %%
-%         m1 = GlobalBest.Position;
-%         [val, ind] = sort(m1, 'descend');
-%         path = [ind ind(1)];
 
-%         %clf;
-%         cla;
-%         hold on
-% 
-%         for p = 1:(size(path, 2)) - 1
-%             line([X(path(p)) X(path(p + 1))], [Y(path(p)) Y(path(p + 1))], 'Color', 'm', 'LineWidth', 2, 'LineStyle', '-')
-%             arrow([X(path(p)) Y(path(p))], [X(path(p + 1)) Y(path(p + 1))])
-%         end
-% 
-%         hold on
-% 
-%         for i2 = 1:nVar
-%             plot(X(i2), Y(i2), 'o', 'LineWidth', 1, ...
-%                 'MarkerEdgeColor', 'k', ...
-%                 'MarkerFaceColor', 'w', ...
-%                 'MarkerSize', 8);
-%             xlabel('X in m')
-%             ylabel('Y in m')
-%             text(X(i2) + 2, Y(i2), num2str(i2), 'FontSize', 10);
-%             hold on
-% 
-%             plot(X(path(1)), Y(path(1)), 'o', 'LineWidth', 1, ...
-%                 'MarkerEdgeColor', 'k', ...
-%                 'MarkerFaceColor', 'g', ...
-%                 'MarkerSize', 10);
-%             xlabel('X in m')
-%             ylabel('Y in m')
-% 
-%         end
-% 
-%         pause(0.05);
-
+        w = w * wdamp;
+        
     end
 
     out.BestSol = GlobalBest;
@@ -196,11 +192,7 @@ end
 
 
 
-    %% Results
 
-    % figure;
-    % %plot(BestCost,'LineWidth',2);
-    % semilogy(BestCost,'LineWidth',2);
-    % xlabel('Iteration');
-    % ylabel('Best Cost');
-    % grid on;
+
+
+
