@@ -1,3 +1,10 @@
+%{
+    Implementing one important algorithm of Swarm intelligence called particle swarm 
+    optimation or (PSO) on travelling salesman problem in matlab. you can find the 
+    source code on my github :
+    https://github.com/arvin2079/PSO-on-TSP-in-matlab
+%}
+
 function out = pso(problem, params)
     %% Problem Definition
     % CITIES NUMBER MUST BE MORE THAN 4 
