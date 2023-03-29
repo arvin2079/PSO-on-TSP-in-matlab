@@ -8,7 +8,7 @@ particle swarm optimization is a computational method that optimizes a problem b
 
 ## TSP
 Also here is a short description of PSO algorithm by [wikipedia](https://en.wikipedia.org/wiki/Travelling_salesman_problem).
-The travelling salesman problem (also called the traveling salesperson problemor (TSP) asks the following question: `Given a list of cities and the distances between each pair of cities, what is the shortest possible route that visits each city exactly once and returns to the origin city?` It is an NP-hard problem in combinatorial optimization, important in theoretical computer science and operations research.
+The travelling salesman problem (also called the traveling salesperson problem or (TSP) asks the following question: `Given a list of cities and the distances between each pair of cities, what is the shortest possible route that visits each city exactly once and returns to the origin city?` It is an NP-hard problem in combinatorial optimization, important in theoretical computer science and operations research.
 
 ## Algorithms Implementation Description
 As we all know, PSO has greate performance on a various range of optimization problems with continuous search space. nevertheless in this project we need to follow some general alteration which follow the basic idea of the algorithm to make it suitable and applicabale for discreate variables. this new form of PSO called Integer and Categorical PSO (ICPSO).
